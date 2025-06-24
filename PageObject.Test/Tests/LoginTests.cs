@@ -1,88 +1,103 @@
 ﻿using System;
-using System.Collections.Generic;
-using Xunit;
 using OpenQA.Selenium;
-using PageObject;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Safari;
+using OpenQA.Selenium.IE;
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
 
-namespace PageObject.Test
+namespace PageObject
 {
-    public class LoginTests : IDisposable
+    public class WebDriverFactory : IDisposable
     {
-        private IWebDriver _driver;
-        private string _browser;
+        private static IWebDriver? _driver;
+        private static bool _disposed = false;
 
-        public LoginTests()
+        public static IWebDriver GetDriver(string browser)
         {
+            if (_driver != null)
+                return _driver;
 
+            switch (browser.ToLower())
+            {
+                case "chrome":
+                    new DriverManager().SetUpDriver(new ChromeConfig());
+                    _driver = new ChromeDriver();
+                    break;
+
+                case "firefox":
+                    new DriverManager().SetUpDriver(new FirefoxConfig());
+                    _driver = new FirefoxDriver();
+                    break;
+
+                case "edge":
+                    new DriverManager().SetUpDriver(new EdgeConfig());
+                    _driver = new EdgeDriver();
+                    break;
+
+                case "safari":
+                    _driver = new SafariDriver();
+                    break;
+
+                case "ie":
+                case "internet explorer":
+                    new DriverManager().SetUpDriver(new InternetExplorerConfig());
+                    _driver = new InternetExplorerDriver();
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported browser: {browser}");
+            }
+
+            _driver.Manage().Window.Maximize();
+            return _driver;
         }
-        private void InitializeDriver(string browser)
+
+        public static void QuitDriver()
         {
-            _browser = browser;
-            _driver = WebDriverFactory.GetDriver(browser);
-            _driver.Navigate().GoToUrl("https://www.saucedemo.com/");
+            if (_driver != null)
+            {
+                try
+                {
+                    _driver.Quit();
+                    _driver.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    // Log exception if needed, ale ignoruj, żeby nie crashowało testów
+                    Console.WriteLine($"Exception during driver quit: {ex.Message}");
+                }
+                finally
+                {
+                    _driver = null;
+                }
+            }
         }
 
-        // Cleanup after each test
         public void Dispose()
         {
-            WebDriverFactory.QuitDriver();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        // Data Provider - tests (browser, username, password, clearFields, expectedError, successExpected)
-        public static IEnumerable<object[]> LoginTestData =>
-            new List<object[]>
-            {
-                // UC-1: Both cleared
-                new object[] { "edge", "someuser", "somepass", true, "Epic sadface: Username is required", false },
-
-                // UC-2: Password cleared
-                new object[] { "firefox", "someuser", "somepass", true, "Epic sadface: Password is required", false },
-
-                // UC-3: Valid credentials (one accepted username is "standard_user")
-                new object[] { "edge", "standard_user", "secret_sauce", false, null, true },
-
-                new object[] { "firefox", "standard_user", "secret_sauce", false, null, true },
-            };
-
-        [Theory]
-        [MemberData(nameof(LoginTestData))]
-        public void TestLoginForm(string browser, string username, string password, bool clearFields, string expectedErrorMessage, bool successExpected)
+        protected virtual void Dispose(bool disposing)
         {
-            InitializeDriver(browser);
-            Console.WriteLine($"Starting test on browser: {browser}");
+            if (_disposed)
+                return;
 
-            var loginPage = new LoginPage(_driver);
-
-            // Enter username and password
-            loginPage.EnterUsername(username);
-            loginPage.EnterPassword(password);
-
-            // Clear inputs if needed depending on test
-            if (clearFields)
+            if (disposing)
             {
-                // For UC-1 clear username and password
-                if (expectedErrorMessage.Contains("Username"))
-                    loginPage.ClearUsername();
-
-                if (expectedErrorMessage.Contains("Password"))
-                    loginPage.ClearPassword();
+                QuitDriver();
             }
 
-            loginPage.ClickLogin();
+            _disposed = true;
+        }
 
-            if (successExpected)
-            {
-                // Check if the main page (dashboard) is loaded by checking the title
-                var title = _driver.Title;
-                Console.WriteLine($"Page title after login: {title}");
-                Assert.Equal("Swag Labs", title);
-            }
-            else
-            {
-                var errorMsg = loginPage.GetErrorMessage();
-                Console.WriteLine($"Error message shown: {errorMsg}");
-                Assert.Contains(expectedErrorMessage, errorMsg);
-            }
+        ~WebDriverFactory()
+        {
+            Dispose(false);
         }
     }
 }
