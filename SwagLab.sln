@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwagLab", "SwagLab\SwagLab.csproj", "{69884C6C-CF32-4448-BF31-573DE42AE499}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PageObject.Test", "PageObject.Test\PageObject.Test.csproj", "{EF59F7EC-9DA6-4592-93C8-40C1B956AC98}"
+	ProjectSection(ProjectDependencies) = postProject
+		{69884C6C-CF32-4448-BF31-573DE42AE499} = {69884C6C-CF32-4448-BF31-573DE42AE499}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

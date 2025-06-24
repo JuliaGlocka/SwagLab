@@ -10,10 +10,9 @@ using WebDriverManager.DriverConfigs.Impl;
 
 namespace PageObject
 {
-    public class WebDriverFactory : IDisposable
+    public static class WebDriverFactory
     {
-        private static IWebDriver _driver;
-        private static bool _disposed = false;
+        private static IWebDriver? _driver;
 
         public static IWebDriver GetDriver(string browser)
         {
@@ -55,35 +54,14 @@ namespace PageObject
             return _driver;
         }
 
-        public void Dispose()
+        public static void QuitDriver()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-                return;
-
-            if (disposing)
+            if (_driver != null)
             {
-                // release managed resources
-                if (_driver != null)
-                {
-                    _driver.Quit();
-                    _driver.Dispose();
-                    _driver = null;
-                }
+                _driver.Quit();
+                _driver.Dispose();
+                _driver = null;
             }
-
-            // release unumanaged resources if any
-            _disposed = true;
-        }
-
-        ~WebDriverFactory()
-        {
-            Dispose(false);
         }
     }
 }
