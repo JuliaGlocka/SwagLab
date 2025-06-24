@@ -17,11 +17,13 @@ This project automates UI tests for the login functionality of the SwagLabs demo
 ## Project Structure
 ```bash
 SwagLab.sln
-├── PageObject/
-│ ├── Login.cs # Page object model for login page
-│ └── WebDriverFactory.cs # Factory class for browser drivers
-├── PageObject.Test/
-│ └── LoginTests.cs # Tests for UC-1, UC-2, UC-3
+├── SwagLab
+│   └── PageObject
+│       ├── Login.cs                 # Page object model for login page
+│       └── WebDriverFactory.cs     # Factory class for browser drivers
+├── PageObject.Test
+│   ├── LoginTests.cs                # Tests for UC-1, UC-2, UC-3
+│   └── WebDriverFactoryTests.cs    # Tests for WebDriverFactory
 └── README.md
 ```
 
