@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using System;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Edge;
@@ -9,9 +10,10 @@ using WebDriverManager.DriverConfigs.Impl;
 
 namespace PageObject
 {
-    public class WebDriverFactory
+    public class WebDriverFactory : IDisposable
     {
         private static IWebDriver _driver;
+        private static bool _disposed = false;
 
         public static IWebDriver GetDriver(string browser)
         {
@@ -53,13 +55,35 @@ namespace PageObject
             return _driver;
         }
 
-        public static void QuitDriver()
+        public void Dispose()
         {
-            if (_driver != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                _driver.Quit();
-                _driver = null;
+                // release managed resources
+                if (_driver != null)
+                {
+                    _driver.Quit();
+                    _driver.Dispose();
+                    _driver = null;
+                }
             }
+
+            // release unumanaged resources if any
+            _disposed = true;
+        }
+
+        ~WebDriverFactory()
+        {
+            Dispose(false);
         }
     }
 }
