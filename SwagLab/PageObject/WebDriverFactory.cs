@@ -1,67 +1,77 @@
-﻿using System;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Edge;
-using OpenQA.Selenium.Safari;
+using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Safari;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
 
-namespace PageObject
+public static class WebDriverFactory
 {
-    public static class WebDriverFactory
+    private static IWebDriver? _driver;
+
+    // Mapowanie przeglądarek do odpowiednich konfiguracji
+    private static readonly Dictionary<string, Action> DriverSetup = new()
     {
-        private static IWebDriver? _driver;
+        { "chrome", () => new DriverManager().SetUpDriver(new ChromeConfig()) },
+        { "firefox", () => new DriverManager().SetUpDriver(new FirefoxConfig()) },
+        { "edge", () => new DriverManager().SetUpDriver(new EdgeConfig()) },
+        { "internet explorer", () => new DriverManager().SetUpDriver(new InternetExplorerConfig()) }
+    };
 
-        public static IWebDriver GetDriver(string browser)
-        {
-            if (_driver != null)
-                return _driver;
-
-            switch (browser.ToLower())
-            {
-                case "chrome":
-                    new DriverManager().SetUpDriver(new ChromeConfig());
-                    _driver = new ChromeDriver();
-                    break;
-
-                case "firefox":
-                    new DriverManager().SetUpDriver(new FirefoxConfig());
-                    _driver = new FirefoxDriver();
-                    break;
-
-                case "edge":
-                    new DriverManager().SetUpDriver(new EdgeConfig());
-                    _driver = new EdgeDriver();
-                    break;
-
-                case "safari":
-                    _driver = new SafariDriver();
-                    break;
-
-                case "ie":
-                case "internet explorer":
-                    new DriverManager().SetUpDriver(new InternetExplorerConfig());
-                    _driver = new InternetExplorerDriver();
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported browser: {browser}");
-            }
-
-            _driver.Manage().Window.Maximize();
+    public static IWebDriver GetDriver(string browser)
+    {
+        if (_driver != null)
             return _driver;
+
+        browser = browser.ToLower();
+
+        // Safari specjalny przypadek, tylko dla macOS
+        if (browser.Equals("safari"))
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                _driver = new SafariDriver();
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Safari is only supported on macOS.");
+            }
+        }
+        else if (DriverSetup.ContainsKey(browser))
+        {
+            // Ustawienie drivera dla przeglądarki, której wersja jest w słowniku
+            DriverSetup[browser]();
+            _driver = CreateDriverForBrowser(browser);
+        }
+        else
+        {
+            throw new ArgumentException($"Unsupported browser: {browser}");
         }
 
-        public static void QuitDriver()
+        _driver.Manage().Window.Maximize();
+        return _driver;
+    }
+
+    // Tworzenie odpowiedniego drivera w oparciu o nazwę przeglądarki
+    private static IWebDriver CreateDriverForBrowser(string browser)
+    {
+        switch (browser)
         {
-            if (_driver != null)
-            {
-                _driver.Quit();
-                _driver.Dispose();
-                _driver = null;
-            }
+            case "chrome":
+                return new ChromeDriver();
+            case "firefox":
+                return new FirefoxDriver();
+            case "edge":
+                return new EdgeDriver();
+            case "internet explorer":
+                return new InternetExplorerDriver();
+            default:
+                throw new ArgumentException($"Unsupported browser: {browser}");
         }
     }
 }

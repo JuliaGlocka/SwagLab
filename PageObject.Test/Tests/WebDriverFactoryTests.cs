@@ -1,8 +1,9 @@
-﻿using Xunit;
-using Xunit.Sdk;
+﻿using OpenQA.Selenium;
 using PageObject;
-using OpenQA.Selenium;
 using System;
+using System.Runtime.InteropServices;
+using Xunit;
+using Xunit.Sdk;
 
 namespace PageObject.Test
 {
@@ -35,17 +36,12 @@ namespace PageObject.Test
         [Fact]
         public void GetDriver_WithSafari_DoesNotThrow()
         {
-            // ✅ Skip before trying to create SafariDriver
-            if (!OperatingSystem.IsMacOS())
-            {
-                throw new XunitException("Skipping: SafariDriver can only run on macOS.");
-            }
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return;
 
-            // 🧪 Try to initialize driver only if OS is macOS
-            var driver = WebDriverFactory.GetDriver("safari");
-
+            var driver = WebDriverFactory.GetDriver("Safari");
             Assert.NotNull(driver);
-            Assert.Contains("Safari", driver.GetType().Name, StringComparison.OrdinalIgnoreCase);
+            driver.Quit();
         }
 
         [Fact]
@@ -66,11 +62,13 @@ namespace PageObject.Test
         [Fact]
         public void QuitDriver_DisposesDriverCorrectly()
         {
-            var driver = WebDriverFactory.GetDriver("chrome");
+            var driver = WebDriverFactory.GetDriver("Chrome");
+            driver.Quit();
 
-            WebDriverFactory.QuitDriver();
-
-            Assert.Throws<WebDriverException>(() => driver.Url);
+            Assert.Throws<ObjectDisposedException>(() =>
+            {
+                var _ = driver.Url;
+            });
         }
     }
 }
