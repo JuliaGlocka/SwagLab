@@ -1,16 +1,23 @@
-﻿using OpenQA.Selenium;
+﻿using log4net;
+using log4net.Config;
+using OpenQA.Selenium;
 using PageObject;
 using System;
 using System.Collections.Generic;
 using Xunit;
 using FluentAssertions;
+using PageObject.Test;
+
 
 namespace PageObject.Test
+
 {
     public class LoginPageTests : IDisposable
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(LoginPageTests));
+
         private IWebDriver _driver = null!;
-        private LoginPage _loginPage =null!;
+        private LoginPage _loginPage = null!;
         private readonly string _baseUrl = "https://www.saucedemo.com/";
 
         // Browsers for testing (only browser param)
@@ -31,6 +38,8 @@ namespace PageObject.Test
 
         private void Initialize(string browser)
         {
+            Logger.Info($"Starting test with browser: {browser}");
+
             _driver = WebDriverFactory.CreateDriver(browser);
             _driver.Navigate().GoToUrl(_baseUrl);
             _loginPage = new LoginPage(_driver);
@@ -40,6 +49,7 @@ namespace PageObject.Test
         [MemberData(nameof(Browsers))]
         public void UC1_LoginWithEmptyCredentials_ShouldShowUsernameRequired(string browser)
         {
+            Logger.Info("UC1 test started.");
             Initialize(browser);
 
             _loginPage.EnterUsername("tempUser");
@@ -51,16 +61,20 @@ namespace PageObject.Test
             _loginPage.ClickLogin();
 
             string error = _loginPage.GetErrorMessage();
+            Logger.Info($"Error message received: {error}");
 
             error.Should().Match(msg =>
                 msg.Contains("Epic sadface: Username is required") ||
                 msg.Contains("Epic sadface: Username and password do not match any user in this service"));
+
+            Logger.Info("UC1 test finished.");
         }
 
         [Theory]
         [MemberData(nameof(Browsers))]
         public void UC2_LoginWithEmptyPassword_ShouldShowPasswordRequired(string browser)
         {
+            Logger.Info("UC2 test started.");
             Initialize(browser);
 
             _loginPage.EnterUsername("tempUser");
@@ -71,10 +85,13 @@ namespace PageObject.Test
             _loginPage.ClickLogin();
 
             string error = _loginPage.GetErrorMessage();
+            Logger.Info($"Error message received: {error}");
 
             error.Should().Match(msg =>
                 msg.Contains("Epic sadface: Password is required") ||
                 msg.Contains("Epic sadface: Username and password do not match any user in this service"));
+
+            Logger.Info("UC2 test finished.");
         }
 
         // Use separate MemberData for multiple parameters: browser, username, password
@@ -82,11 +99,17 @@ namespace PageObject.Test
         [MemberData(nameof(ValidCredentials))]
         public void UC3_LoginWithValidCredentials_ShouldLoginAndShowDashboardTitle(string browser, string username, string password)
         {
+            Logger.Info("UC3 test started.");
             Initialize(browser);
 
+            Logger.Info($"Logging in with Username: {username} and Password: {password}");
             _loginPage.Login(username, password);
 
-            _driver.Title.Should().Be("Swag Labs");
+            string title = _driver.Title;
+            Logger.Info($"Page title after login: {title}");
+
+            title.Should().Be("Swag Labs");
+            Logger.Info("UC3 test finished.");
         }
 
         [Theory]

@@ -8,7 +8,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Update="log4net.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<PackageReference Include="FluentAssertions" Version="8.3.0" />
+		<PackageReference Include="log4net" Version="3.1.0" />
 		<ProjectReference Include="..\SwagLab\SwagLab.csproj" />
 		<PackageReference Include="xunit" Version="2.5.3" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
@@ -22,6 +26,12 @@
 		<PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.34.0" />
 		<PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="118.0.2088.41" />
 		<PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.14.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="log4net.config">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

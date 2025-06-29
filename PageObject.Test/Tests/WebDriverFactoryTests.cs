@@ -2,45 +2,67 @@
 using System;
 using System.Runtime.InteropServices;
 using Xunit;
+using log4net;
 
-namespace PageObject.Test.Tests;
-public class WebDriverFactoryTests : IDisposable
+namespace PageObject.Test.Tests
 {
-    private IWebDriver? _driver;
-
-    public void Dispose()
+    public class WebDriverFactoryTests : IDisposable
     {
-        // Cleanup driver after each test if created
-        _driver?.Quit();
-        _driver?.Dispose();
-        _driver = null;
-    }
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(WebDriverFactoryTests));
 
-    [Theory]
-    [InlineData("chrome")]
-    [InlineData("firefox")]
-    [InlineData("edge")]
-    public void CreateDriver_WithSupportedBrowser_ReturnsDriver(string browser)
-    {
-        _driver = WebDriverFactory.CreateDriver(browser);
-        Assert.NotNull(_driver);
-        Assert.Contains(browser, _driver.GetType().Name, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Fact]
-    public void CreateDriver_WithUnsupportedBrowser_ThrowsArgumentException()
-    {
-        Assert.Throws<ArgumentException>(() => WebDriverFactory.CreateDriver("opera"));
-    }
-
-    [Fact]
-    public void CreateDriver_Safari_OnNonMac_ThrowsPlatformNotSupportedException()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        // Static constructor to ensure log4net is initialized only once
+        static WebDriverFactoryTests()
         {
-            // Skip on macOS because Safari is supported
-            return;
+            LogInitializer.Initialize(); // Ennusre log4net is initialized once for all tests
         }
-        Assert.Throws<PlatformNotSupportedException>(() => WebDriverFactory.CreateDriver("safari"));
+
+        private IWebDriver? _driver;
+
+        public void Dispose()
+        {
+            Logger.Info("Disposing WebDriver...");
+            _driver?.Quit();
+            _driver?.Dispose();
+            _driver = null;
+        }
+
+        [Theory]
+        [InlineData("chrome")]
+        [InlineData("firefox")]
+        [InlineData("edge")]
+        public void CreateDriver_WithSupportedBrowser_ReturnsDriver(string browser)
+        {
+            Logger.Info($"Test started for browser: {browser}");
+
+            _driver = WebDriverFactory.CreateDriver(browser);
+
+            Logger.Info($"Driver created: {_driver?.GetType().Name}");
+
+            Assert.NotNull(_driver);
+            Assert.Contains(browser, _driver.GetType().Name, StringComparison.OrdinalIgnoreCase);
+
+            Logger.Info("Test passed.");
+        }
+
+        [Fact]
+        public void CreateDriver_WithUnsupportedBrowser_ThrowsArgumentException()
+        {
+            Logger.Info("Testing unsupported browser: opera");
+            Assert.Throws<ArgumentException>(() => WebDriverFactory.CreateDriver("opera"));
+        }
+
+        [Fact]
+        public void CreateDriver_Safari_OnNonMac_ThrowsPlatformNotSupportedException()
+        {
+            Logger.Info("Testing Safari driver on non-macOS platform");
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Logger.Warn("Skipping test: running on macOS.");
+                return;
+            }
+
+            Assert.Throws<PlatformNotSupportedException>(() => WebDriverFactory.CreateDriver("safari"));
+        }
     }
 }
