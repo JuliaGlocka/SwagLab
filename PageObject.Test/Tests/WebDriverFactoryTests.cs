@@ -3,6 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 using Xunit;
 
+namespace PageObject.Test.Tests;
 public class WebDriverFactoryTests : IDisposable
 {
     private IWebDriver? _driver;
