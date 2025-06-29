@@ -1,44 +1,84 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;  // WebDriverWait
+using SeleniumExtras.WaitHelpers; // ExpectedConditions
+using System;
 
 namespace PageObject
 {
     public class LoginPage
     {
         private readonly IWebDriver _driver;
+        private readonly WebDriverWait _wait;
 
-        // Constructors
+        // Constructor with WebDriverWait initalization (timeout 10 seconds)
         public LoginPage(IWebDriver driver)
         {
             _driver = driver;
+            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
         }
 
-        // Locators
-        private By UsernameInput => By.CssSelector("#user-name");
-        private By PasswordInput => By.CssSelector("#password");
-        private By LoginButton => By.CssSelector("#login-button");
-        private By ErrorMessage => By.CssSelector("h3[data-test='error']");
+        // Readonly fields as locatros
+        private readonly By _usernameInput = By.CssSelector("#user-name");
+        private readonly By _passwordInput = By.CssSelector("#password");
+        private readonly By _loginButton = By.CssSelector("#login-button");
+        private readonly By _errorMessage = By.CssSelector(".error-message-container");
 
-        // Actions
+        // Wait and find element with wait until
+        private IWebElement WaitAndFindElement(By locator)
+        {
+            return _wait.Until(ExpectedConditions.ElementIsVisible(locator));
+        }
+
+        // Enter text to Username field and clean with wait
         public void EnterUsername(string username)
         {
-            var el = _driver.FindElement(UsernameInput);
+            var el = WaitAndFindElement(_usernameInput);
             el.Clear();
             el.SendKeys(username);
         }
 
+        // Enter text to Password field and clean with wait
         public void EnterPassword(string password)
         {
-            var el = _driver.FindElement(PasswordInput);
+            var el = WaitAndFindElement(_passwordInput);
             el.Clear();
             el.SendKeys(password);
         }
 
-        public void ClearUsername() => _driver.FindElement(UsernameInput).Clear();
+        // Clean Username field with waitem
+        public void ClearUsername()
+        {
+            var el = WaitAndFindElement(_usernameInput);
+            el.Clear();
+        }
 
-        public void ClearPassword() => _driver.FindElement(PasswordInput).Clear();
+        // Clean Password field with waitem
+        public void ClearPassword()
+        {
+            var el = WaitAndFindElement(_passwordInput);
+            el.Clear();
+        }
 
-        public void ClickLogin() => _driver.FindElement(LoginButton).Click();
+        // Click login button and wait until clickable
+        public void ClickLogin()
+        {
+            var el = _wait.Until(ExpectedConditions.ElementToBeClickable(_loginButton));
+            el.Click();
+        }
 
-        public string GetErrorMessage() => _driver.FindElement(ErrorMessage).Text;
+        // Get error message from the page and wait until visible
+        public string GetErrorMessage()
+        {
+            var el = _wait.Until(ExpectedConditions.ElementIsVisible(_errorMessage));
+            return el.Text;
+        }
+
+        // Login method that combines username and password entry with login button click
+        public void Login(string username, string password)
+        {
+            EnterUsername(username);
+            EnterPassword(password);
+            ClickLogin();
+        }
     }
 }
