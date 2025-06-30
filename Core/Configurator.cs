@@ -8,7 +8,7 @@ public static class Configurator
     static Configurator()
     {
         _configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory()) // lub ścieżka do Core
+            .SetBasePath(Directory.GetCurrentDirectory()) // or path to Core
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
     }

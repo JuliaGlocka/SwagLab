@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using FluentAssertions;
+using Core;
 
 
 namespace Tests

@@ -1,9 +1,11 @@
-using SwagLab.Core;
+using PageObject.Test;
 ﻿using OpenQA.Selenium;
 using System;
 using System.Runtime.InteropServices;
 using Xunit;
 using log4net;
+using log4net.Config;
+using Core;
 
 namespace Tests
 {

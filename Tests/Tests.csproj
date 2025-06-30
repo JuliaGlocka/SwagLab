@@ -8,6 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<None Include="..\Core\testsettings.json" Link="testsettings.json">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="FluentAssertions" Version="8.4.0" />
     <PackageReference Include="log4net" Version="3.1.0" />

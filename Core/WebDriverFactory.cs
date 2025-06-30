@@ -10,49 +10,76 @@ using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
 using Microsoft.Extensions.Configuration;
 
-public static class WebDriverFactory
+namespace Core
 {
-    private static readonly IConfigurationRoot configuration;
-
-    static WebDriverFactory()
+    public static class WebDriverFactory
     {
-        configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .Build();
-    }
+        private static readonly IConfigurationRoot configuration;
 
-    public static IWebDriver CreateDriver()
-    {
-        string browser = configuration["Browser"]?.ToLower() ?? "chrome";
-
-        if (browser == "safari")
+        static WebDriverFactory()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return new SafariDriver();
-            else
-                throw new PlatformNotSupportedException("Safari is only supported on macOS.");
+            configuration = new ConfigurationBuilder()
+                .AddJsonFile("testsettings.json", optional: false, reloadOnChange: true)
+                .Build();
         }
 
-        switch (browser)
+        public static IWebDriver CreateDriver()
         {
-            case "chrome":
-                new DriverManager().SetUpDriver(new ChromeConfig());
-                return new ChromeDriver();
+            string browser = configuration["Browser"]?.ToLower() ?? "chrome";
+            return CreateDriverInternal(browser);
+        }
 
-            case "firefox":
-                new DriverManager().SetUpDriver(new FirefoxConfig());
-                return new FirefoxDriver();
+        // Overload to allow specifying browser name
+        public static IWebDriver CreateDriver(string browserName)
+        {
+            string browser = browserName?.ToLower() ?? configuration["Browser"]?.ToLower() ?? "chrome";
+            return CreateDriverInternal(browser);
+        }
 
-            case "edge":
-                new DriverManager().SetUpDriver(new EdgeConfig());
-                return new EdgeDriver();
+        private static IWebDriver CreateDriverInternal(string browser)
+        {
+            // Handle empty/null browser names
+            if (string.IsNullOrWhiteSpace(browser))
+            {
+                browser = configuration["Browser"]?.ToLower() ?? "chrome";
+            }
 
-            case "internet explorer":
-                new DriverManager().SetUpDriver(new InternetExplorerConfig());
-                return new InternetExplorerDriver();
+            // Handle Safari first (special case for platform check)
+            if (browser == "safari")
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    return new SafariDriver();
+                }
+                else
+                {
+                    throw new PlatformNotSupportedException("Safari is only supported on macOS.");
+                }
+            }
 
-            default:
-                throw new ArgumentException($"Unsupported browser: {browser}");
+            // Handle other browsers
+            switch (browser)
+            {
+                case "chrome":
+                    new DriverManager().SetUpDriver(new ChromeConfig());
+                    return new ChromeDriver();
+
+                case "firefox":
+                    new DriverManager().SetUpDriver(new FirefoxConfig());
+                    return new FirefoxDriver();
+
+                case "edge":
+                    new DriverManager().SetUpDriver(new EdgeConfig());
+                    return new EdgeDriver();
+
+                case "internet explorer":
+                case "ie":
+                    new DriverManager().SetUpDriver(new InternetExplorerConfig());
+                    return new InternetExplorerDriver();
+
+                default:
+                    throw new ArgumentException($"Unsupported browser: {browser}");
+            }
         }
     }
 }
