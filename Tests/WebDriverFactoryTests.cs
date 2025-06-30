@@ -1,10 +1,11 @@
+using SwagLab.Core;
 ﻿using OpenQA.Selenium;
 using System;
 using System.Runtime.InteropServices;
 using Xunit;
 using log4net;
 
-namespace PageObject.Test.Tests
+namespace Tests
 {
     public class WebDriverFactoryTests : IDisposable
     {
@@ -34,7 +35,7 @@ namespace PageObject.Test.Tests
         {
             Logger.Info($"Test started for browser: {browser}");
 
-            _driver = WebDriverFactory.CreateDriver(browser);
+            _driver = WebDriverFactory.CreateDriver();
 
             Logger.Info($"Driver created: {_driver?.GetType().Name}");
 
@@ -48,7 +49,7 @@ namespace PageObject.Test.Tests
         public void CreateDriver_WithUnsupportedBrowser_ThrowsArgumentException()
         {
             Logger.Info("Testing unsupported browser: opera");
-            Assert.Throws<ArgumentException>(() => WebDriverFactory.CreateDriver("opera"));
+            Assert.Throws<ArgumentException>(() => WebDriverFactory.CreateDriver());
         }
 
         [Fact]
@@ -62,7 +63,7 @@ namespace PageObject.Test.Tests
                 return;
             }
 
-            Assert.Throws<PlatformNotSupportedException>(() => WebDriverFactory.CreateDriver("safari"));
+            Assert.Throws<PlatformNotSupportedException>(() => WebDriverFactory.CreateDriver());
         }
     }
 }

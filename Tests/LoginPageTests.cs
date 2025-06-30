@@ -6,10 +6,9 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using FluentAssertions;
-using PageObject.Test;
 
 
-namespace PageObject.Test
+namespace Tests
 
 {
     public class LoginPageTests : IDisposable
@@ -40,7 +39,7 @@ namespace PageObject.Test
         {
             Logger.Info($"Starting test with browser: {browser}");
 
-            _driver = WebDriverFactory.CreateDriver(browser);
+            _driver = WebDriverFactory.CreateDriver();
             _driver.Navigate().GoToUrl(_baseUrl);
             _loginPage = new LoginPage(_driver);
         }
