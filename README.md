@@ -16,19 +16,21 @@ A comprehensive Selenium-based test automation framework for testing the [SauceD
 
 ```bash
 SwagLab/
-├── PageObject.Test/                    # Main test project
-│   ├── Dependencies/                   # Project dependencies
-│   ├── Tests/                         # Test classes
-│   │   ├── LoginPageTests.cs          # Login functionality tests
-│   │   ├── WebDriverFactoryTests.cs   # WebDriver factory tests
-│   │   └── xunit.runner.json          # xUnit runner configuration
-│   └── log4net.config                 # Logging configuration
-└── SwagLab/                           # Page Object library
-    ├── Dependencies/                   # Library dependencies
-    ├── PageObject/                     # Page Object classes
-    │   ├── LoginPage.cs               # Login page object
-    │   └── WebDriverFactory.cs       # WebDriver factory class
+├── PageObject.Test/                     # Main test project
+│   ├── Dependencies/                    # Project dependencies
+│   ├── Tests/                           # Test classes
+│   │   ├── LoginPageTests.cs            # Login functionality tests
+│   │   ├── WebDriverFactoryTests.cs     # WebDriver factory tests
+│   │   └── LogInitializer.cs            # Global log4net config (not a test)
+│   ├── xunit.runner.json                # xUnit runner configuration
+│   └── log4net.config                   # Logging configuration
+└── SwagLab/                             # Page Object library
+    ├── Dependencies/                    # Library dependencies
+    └── PageObject/                      # Page Object classes
+        ├── LoginPage.cs                 # Login page object
+        └── WebDriverFactory.cs          # WebDriver factory class
 ```
+
 
 ## 🚀 Features
 
@@ -193,6 +195,10 @@ Logs help with:
 *   Configurable log levels
 *   Timestamped log entries
 *   Thread-safe logging
+
+### Global Log Initialization
+
+Logging is initialized once via `LogInitializer.cs` in the test project. It ensures log4net reads configuration from `log4net.config` before any test execution.
 
 ## 🐛 Troubleshooting
 
