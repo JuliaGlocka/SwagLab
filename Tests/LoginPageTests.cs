@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using FluentAssertions;
-using Core;
+using SwagLab.Core;
+using UI.Pages;
 
 
 namespace Tests
@@ -40,7 +41,7 @@ namespace Tests
         {
             Logger.Info($"Starting test with browser: {browser}");
 
-            _driver = WebDriverFactory.CreateDriver();
+            _driver = WebDriverFactory.CreateDriver(browser);
             _driver.Navigate().GoToUrl(_baseUrl);
             _loginPage = new LoginPage(_driver);
         }

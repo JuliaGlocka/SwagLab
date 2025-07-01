@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using Xunit;
 using log4net;
 using log4net.Config;
-using Core;
+using SwagLab.Core;
 
 namespace Tests
 {

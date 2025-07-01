@@ -3,21 +3,21 @@ using OpenQA.Selenium.Support.UI;  // WebDriverWait
 using SeleniumExtras.WaitHelpers; // ExpectedConditions
 using System;
 
-namespace PageObject
+namespace UI.Pages
 {
     public class LoginPage
     {
         private readonly IWebDriver _driver;
         private readonly WebDriverWait _wait;
 
-        // Constructor with WebDriverWait initalization (timeout 10 seconds)
+        // Constructor with WebDriverWait initialization (timeout 10 seconds)
         public LoginPage(IWebDriver driver)
         {
             _driver = driver;
             _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
         }
 
-        // Readonly fields as locatros
+        // Readonly fields as locators
         private readonly By _usernameInput = By.CssSelector("#user-name");
         private readonly By _passwordInput = By.CssSelector("#password");
         private readonly By _loginButton = By.CssSelector("#login-button");
@@ -45,14 +45,14 @@ namespace PageObject
             el.SendKeys(password);
         }
 
-        // Clean Username field with waitem
+        // Clean Username field with wait
         public void ClearUsername()
         {
             var el = WaitAndFindElement(_usernameInput);
             el.Clear();
         }
 
-        // Clean Password field with waitem
+        // Clean Password field with wait
         public void ClearPassword()
         {
             var el = WaitAndFindElement(_passwordInput);

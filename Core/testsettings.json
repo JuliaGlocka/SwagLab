@@ -1,6 +1,0 @@
-{
-  "Browser": "chrome",
-  "BaseUrl": "https://www.saucedemo.com/",
-  "TestTimeout": 30,
-  "ImplicitWait": 10
-}
