@@ -52,8 +52,6 @@ namespace SwagLab.Core
 
         private static IWebDriver CreateSafariDriver()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                throw new PlatformNotSupportedException("Safari is only supported on macOS.");
             return new SafariDriver();
         }
 

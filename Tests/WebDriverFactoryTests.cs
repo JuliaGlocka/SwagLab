@@ -35,25 +35,6 @@ namespace Tests
         }
 
         [Fact]
-        public void CreateDriver_Safari_OnNonMac_ThrowsArgumentException()
-        {
-            Logger.Info("Testing Safari driver on non-macOS platform");
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Logger.Warn("Skipping test: running on macOS.");
-                return;
-            }
-
-            var ex = Assert.Throws<ArgumentException>(() =>
-            {
-                _driver = WebDriverFactory.CreateDriver("safari");
-            });
-
-            Assert.Contains("safari", ex.Message, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
         public void CreateDriver_WithUnsupportedBrowser_ThrowsArgumentException()
         {
             Logger.Info("Testing unsupported browser: opera");
