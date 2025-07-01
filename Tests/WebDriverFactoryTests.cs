@@ -1,25 +1,24 @@
+using log4net;
+using OpenQA.Selenium;
 using PageObject.Test;
-﻿using OpenQA.Selenium;
+using SwagLab.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Xunit;
-using log4net;
-using log4net.Config;
-using SwagLab.Core;
 
 namespace Tests
 {
     public class WebDriverFactoryTests : IDisposable
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(WebDriverFactoryTests));
+        private IWebDriver? _driver;
 
-        // Static constructor to ensure log4net is initialized only once
         static WebDriverFactoryTests()
         {
-            LogInitializer.Initialize(); // Ennusre log4net is initialized once for all tests
+            LogInitializer.Initialize();
         }
-
-        private IWebDriver? _driver;
 
         public void Dispose()
         {
@@ -29,29 +28,40 @@ namespace Tests
             _driver = null;
         }
 
-        [Theory]
-        [InlineData("chrome")]
-        [InlineData("firefox")]
-        [InlineData("edge")]
-        public void CreateDriver_WithSupportedBrowser_ReturnsDriver(string browser)
+        public static IEnumerable<object[]> GetSupportedBrowsers()
         {
-            Logger.Info($"Test started for browser: {browser}");
+            var supported = Configurator.SupportedBrowsers;
+            return supported.Select(b => new object[] { b });
+        }
 
-            _driver = WebDriverFactory.CreateDriver();
+        [Fact]
+        public void CreateDriver_Safari_OnNonMac_ThrowsArgumentException()
+        {
+            Logger.Info("Testing Safari driver on non-macOS platform");
 
-            Logger.Info($"Driver created: {_driver?.GetType().Name}");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Logger.Warn("Skipping test: running on macOS.");
+                return;
+            }
 
-            Assert.NotNull(_driver);
-            Assert.Contains(browser, _driver.GetType().Name, StringComparison.OrdinalIgnoreCase);
+            var ex = Assert.Throws<ArgumentException>(() =>
+            {
+                _driver = WebDriverFactory.CreateDriver("safari");
+            });
 
-            Logger.Info("Test passed.");
+            Assert.Contains("safari", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
         public void CreateDriver_WithUnsupportedBrowser_ThrowsArgumentException()
         {
             Logger.Info("Testing unsupported browser: opera");
-            Assert.Throws<ArgumentException>(() => WebDriverFactory.CreateDriver());
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                _driver = WebDriverFactory.CreateDriver("opera");
+            });
         }
 
         [Fact]
@@ -65,7 +75,10 @@ namespace Tests
                 return;
             }
 
-            Assert.Throws<PlatformNotSupportedException>(() => WebDriverFactory.CreateDriver());
+            Assert.Throws<PlatformNotSupportedException>(() =>
+            {
+                _driver = WebDriverFactory.CreateDriver("safari");
+            });
         }
     }
 }

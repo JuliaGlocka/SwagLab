@@ -1,19 +1,21 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 
 namespace SwagLab.Core
 {
     public static class Configurator
     {
-        private static readonly IConfigurationRoot _config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .Build();
+        private static IConfiguration? _config;
 
-        public static string Browser => _config["Browser"]?.Trim().ToLowerInvariant() ?? "chrome";
+        public static IConfiguration Config =>
+            _config ??= new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
 
-        public static IReadOnlyList<string> SupportedBrowsers =>
-            _config.GetSection("SupportedBrowsers").Get<List<string>>() ?? new List<string> { "chrome", "firefox", "edge" };
+        // Używamy Config do bezpiecznego odczytu, żeby wymusić inicjalizację
+        public static string Browser => Config["Browser"] ?? throw new InvalidOperationException("Browser setting missing.");
+
+        public static List<string> SupportedBrowsers =>
+            Config.GetSection("SupportedBrowsers").Get<List<string>>() ?? new List<string>();
     }
 }
