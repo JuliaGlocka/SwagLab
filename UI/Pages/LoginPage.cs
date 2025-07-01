@@ -18,11 +18,12 @@ namespace UI.Pages
         }
 
         // Readonly fields as locators
+#pragma warning disable S1450
         private readonly By _usernameInput = By.CssSelector("#user-name");
         private readonly By _passwordInput = By.CssSelector("#password");
         private readonly By _loginButton = By.CssSelector("#login-button");
         private readonly By _errorMessage = By.CssSelector(".error-message-container");
-
+#pragma warning restore S1450
         // Wait and find element with wait until
         private IWebElement WaitAndFindElement(By locator)
         {
